@@ -8,7 +8,7 @@ Final project for CS109 explorer TV flow patterns.
 This project includes a process book describing how it came together. It requires iPython notebooks and can be access with:
 
 ```
-ipython notebook process.ipynb
+ipython notebook process-final.ipynb
 ```
 
 Install dependencies by running:
