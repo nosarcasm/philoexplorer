@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Flow Explorer
 ============
 
@@ -27,3 +28,7 @@ python -m SimpleHTTPServer
 ```
 
 The presentation will then be reachable at [http://localhost:8000/](http://localhost:8000/).
+=======
+philoexplorer
+=============
+>>>>>>> 3f4bd91a588767e067b0e73da9940e850aa4c861
