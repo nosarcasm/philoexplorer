@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-Flow Explorer
+Philo TV Viewer Explorer
 ============
 
 Final project for CS109 explorer TV flow patterns.
@@ -20,15 +19,5 @@ pip install -r requirements.txt
 
 ### Presentation
 
-This project requires a basic HTTP server to view the HTML
-presentation and visualization. This will do:
+The presentation is reachable at [http://indynamics.org/philoexplorer](http://indynamics.org/philoexplorer).
 
-```
-python -m SimpleHTTPServer
-```
-
-The presentation will then be reachable at [http://localhost:8000/](http://localhost:8000/).
-=======
-philoexplorer
-=============
->>>>>>> 3f4bd91a588767e067b0e73da9940e850aa4c861
