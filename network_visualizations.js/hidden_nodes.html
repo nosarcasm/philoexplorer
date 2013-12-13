@@ -1,0 +1,213 @@
+<!doctype html>
+<html class="no-js" lang="en">
+   <html>
+<head>
+	<link rel="stylesheet" media="all" type="text/css" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+	<link rel="stylesheet" media="all" type="text/css" href="./jquery-ui-timepicker-addon.css">
+</head>
+<body>
+<div class="wrapper">
+<form id="target">
+<input type='text' name='start' id='start' value="">
+<input type='text' name='end' id='end' value="">
+<input type='submit' value='Go'>
+</form>
+</div>
+<script type='text/javascript' src='/js/sigma.min.js'></script>
+<script type='text/javascript' src='/js/sigma.parseGexf.js'></script>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/ui/1.10.3/jquery-ui.min.js"></script>
+<script type='text/javascript' src='./jquery-ui-timepicker-addon.js'></script>
+<script type='text/javascript' src='./jquery-ui-sliderAccess.js'></script>
+
+<script type='text/javascript'>
+	$(function(){
+		var startDateTextBox = $('#start');
+		var endDateTextBox = $('#end');
+
+		startDateTextBox.datetimepicker({ 
+			stepHour: 1,
+			stepMinute: 5,
+			addSliderAccess: true,
+			sliderAccessArgs: { touchonly: false },
+			timeFormat: 'HH:mm',
+			minDate: new Date(2011, 11, 1, 21, 0),
+			maxDate: new Date(2012, 2, 7, 0, 0),
+			onClose: function(dateText, inst) {
+				if (endDateTextBox.val() != '') {
+					var testStartDate = startDateTextBox.datetimepicker('getDate');
+					var testEndDate = endDateTextBox.datetimepicker('getDate');
+					if (testStartDate > testEndDate)
+						endDateTextBox.datetimepicker('setDate', testStartDate);
+				}
+				else {
+					endDateTextBox.val(dateText);
+				}
+			},
+			onSelect: function (selectedDateTime){
+				endDateTextBox.datetimepicker('option', 'minDate', startDateTextBox.datetimepicker('getDate') );
+			}
+		});
+		endDateTextBox.datetimepicker({ 
+			timeFormat: 'HH:mm',
+			minDate: new Date(2011, 11, 1, 21, 0),
+			maxDate: new Date(2012, 2, 7, 0, 0),
+			stepHour: 1,
+			stepMinute: 5,
+			addSliderAccess: true,
+			sliderAccessArgs: { touchonly: false },
+			onClose: function(dateText, inst) {
+				if (startDateTextBox.val() != '') {
+					var testStartDate = startDateTextBox.datetimepicker('getDate');
+					var testEndDate = endDateTextBox.datetimepicker('getDate');
+					if (testStartDate > testEndDate)
+						startDateTextBox.datetimepicker('setDate', testEndDate);
+				}
+				else {
+					startDateTextBox.val(dateText);
+				}
+			},
+			onSelect: function (selectedDateTime){
+				startDateTextBox.datetimepicker('option', 'maxDate', endDateTextBox.datetimepicker('getDate') );
+			}
+		});
+	});
+</script>
+      <br />
+      <br />
+            <div class="sigma-parent" id="sigma-example-parent">
+               <div class="sigma-expand" id="sigma-example"></div>
+            </div>
+         </div>
+         <br />
+         <br />
+         <script src="js/sigma.parseGexf.js"></script>
+         <script type="text/javascript">
+		function init() {
+            // Instanciate sigma.js and customize rendering :
+            window.sigInst = sigma.init(document.getElementById('sigma-example')).drawingProperties({
+              defaultLabelColor: '#fff',
+              defaultLabelSize: 14,
+              defaultLabelBGColor: '#fff',
+              defaultLabelHoverColor: '#000',
+              labelThreshold: 3,
+              defaultEdgeType: 'curve'
+            }).graphProperties({
+              minNodeSize: 0.5,
+              maxNodeSize: 5,
+              minEdgeSize: 0
+            }).mouseProperties({
+              maxRatio: 8
+            });
+            
+            // Parse a GEXF encoded file to fill the graph
+            // (requires "sigma.parseGexf.js" to be included)
+            sigInst.parseGexf('finished_network3.gexf');
+            
+            // Bind events :
+		var greyColor = '#666';
+		sigInst.bind('overnodes',function(event){
+		window.nodes = event.content;
+		var neighbors = {};
+		sigInst.iterEdges(function(e){
+		  if(nodes.indexOf(e.source)<0 && nodes.indexOf(e.target)<0){
+			if(!e.attr['grey']){
+			  e.attr['true_color'] = e.color;
+			  e.color = greyColor;
+			  e.attr['grey'] = 1;
+			}
+		  }else{
+			e.color = e.attr['grey'] ? e.attr['true_color'] : e.color;
+			e.attr['grey'] = 0;
+
+			neighbors[e.source] = 1;
+			neighbors[e.target] = 1;
+		  }
+		}).iterNodes(function(n){
+		  if(!neighbors[n.id]){
+			if(!n.attr['grey']){
+			  n.attr['true_color'] = n.color;
+			  n.color = greyColor;
+			  n.attr['grey'] = 1;
+			}
+		  }else{
+			n.color = n.attr['grey'] ? n.attr['true_color'] : n.color;
+			n.attr['grey'] = 0;
+		  }
+		}).draw(2,2,2);
+		}).bind('outnodes',function(){
+		sigInst.iterEdges(function(e){
+		  e.color = e.attr['grey'] ? e.attr['true_color'] : e.color;
+		  e.attr['grey'] = 0;
+		}).iterNodes(function(n){
+		  n.color = n.attr['grey'] ? n.attr['true_color'] : n.color;
+		  n.attr['grey'] = 0;
+		}).draw(2,2,2);
+		});
+            
+            // Draw the graph :
+            sigInst.draw();
+            }
+            
+            if (document.addEventListener) {
+            document.addEventListener("DOMContentLoaded", init, false);
+            } else {
+            window.onload = init;
+            }
+         </script>
+         <style type="text/css">
+            /* sigma.js context : */
+            .sigma-parent {
+            position: relative;
+            background: #222;
+            height: 80vh;
+            top:0px;
+            }
+            .sigma-expand {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: -0;
+            left: 0;
+            }
+         </style>
+   <script type='text/javascript'>
+	$("#target").on("submit", (function(event){
+		event.preventDefault();
+		window.nodesactive = [];
+		window.allnodes = [];
+	   $.getJSON('/allnodes.json', {}, function(data) {
+			window.allnodes = data.nodes;
+			for (n in window.allnodes)
+			{ 
+				try
+				{
+					window.sigInst.iterNodes(function(n)
+					{n.hidden=1;},[allnodes[n]]);
+				} 
+				catch(err)
+				{continue;}
+			}
+		});
+	   $.getJSON('http://indynamics.org/cs109/', $("#target").serialize(), function(data) {
+		window.nodesactive = data.nodes;
+		for (n in window.nodesactive)
+		{
+			try{
+				var nsize = window.nodesactive[n][1]
+				window.sigInst.iterNodes(
+				function(n){
+					n.hidden=0;
+					n.size=nsize;
+				}, [window.nodesactive[n][0]]);
+			}
+			catch(err){
+				continue;
+			}
+		}
+		window.sigInst.draw();
+		});
+	}));
+   </script>
+   </body>
+</html>

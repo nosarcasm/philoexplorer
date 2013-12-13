@@ -1,0 +1,424 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>How does Harvard watch TV?</title>
+
+    <link rel="shortcut icon" href="/favicon.ico" />
+
+    <link rel="stylesheet" type="text/css" href="css/typeplate.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+
+    <link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="css/jquery-ui-timepicker-addon.css">
+  </head>
+  <body>
+    <div class="container">
+
+      <!--<img id="shield" src="images/shield.png" alt="SEAS shield" />-->
+
+      <h1>How does Harvard watch TV?</h1>
+      <div class="byline">
+        by <cite>David Chouinard, Jody Schechter, Ryan Neff &amp; Vladimir Bok</cite>
+      </div>
+
+      <p class="delta lede">From Nielsen to comScore, TV ratings are big business, yet the state of the art in data collection is surprisingly coarse. If we had access to up-to-the-second invididual viewing patterns, what could we do? Let's find out. </p>
+
+       <p>Driven by strong business incentives and the rise of technology-empowered user tracking, television recommendation systems have grown ever more sophisticated and elaborated. There are more ways than ever today to discover new shows and movies to watch, from websites such as IMDB to smartphone apps, smart TVs, and subscription services which provide on-demand access to content and user ratings.</p>
+
+      <p>However, many of the methods developed for product and content recommendations are ill-suited for live content, such as on cable TV, where a user is forced to select from whatever content is available at that time. Unlike on-demand services (like Netflix or Hulu) where the user can choose which show or movie to watch next from an expansive list of content, the cable TV viewer is left with only one option: switching the channel. Live TV is inherently dynamic: a show that is airing at this moment will likely be over in a hour, creating an ever-changing time and network-dependent patchwork of content.</p>
+
+      <p>In addition, current TV interaction patterns have no feedback loop: there are no star ratings on live TV. Without a direct measure of user preference, how do we make good recommendations? We will demonstrate that these characteristics necessitate unique recommendation system for cable TV content. We develop "stickiness" — a dynamic, behavior-dependent metric to measure TV show engagement. This work provides the building block and a solid metric from which existing recommender system technology could be built upon.</p>
+
+      <h2>The Data</h2>
+
+      <p>This project is based on a private dataset provided by campus TV streaming startup <a href="http://www.philo.com/">Philo</a>, formerly known as Tivli. The data includes:</p>
+      <ul>
+        <li>Show name</li>
+        <li>Network</li>
+        <li>Time show was watched (in seconds)</li>
+        <li>Unique user and session ID</li>
+        <li>Episode information (title, description, genre)</li>
+      </ul>
+
+      <p>The data represents a log from the CDN which served video snippets in 5 second increments to each user's computer. The data was acquired with a MATLAB script which querying the MongoDB datastores on each video server. After being cleaned up to remove artifacts, the data consisted of 131,902 datapoints. Users could log into the site either as a guest user on the Harvard network or through Facebook. For those users who chose to register via Facebook, we augmented the dataset with gender data pulled from the Facebook Graph API.</p>
+      
+      <p>During the data collection period, users could select from a selection of live content on the following channels:</p>
+<ul> 
+<table><tr><td style="width:300px;vertical-align:top">
+<li>ABC</li>
+<li>AMC</li>
+<li>Bravo!</li>
+<li>Cartoon Network</li>
+<li>CBS</li>
+<li>CNBC</li>
+<li>CNN</li>
+<li>Comedy Central</li>
+<li>CW</li>
+<li>E!</li>
+<li>ESPN</li>
+<li>ESPN2</li>
+<li>Food Network</li>
+<li>FOX</li>
+<li>Fox News</li>
+</td><td style="width:300;vertical-align:top">
+<li>FX</li>
+<li>History Channel</li>
+<li>MSNBC</li>
+<li>MTV</li>
+<li>National Geographic</li>
+<li>NBC</li>
+<li>SyFy</li>
+<li>TBS</li>
+<li>TNT</li>
+<li>TV38</li>
+<li>USA</li>
+<li>VH1</li>
+</td></tr></table>     
+   
+</ul>
+
+
+      <p>As shown below, the dataset covers a 3 month period starting December 2011 and ending at the beginning of March 2012. The highest traffic is seen over weekends (highlighted by green bars) and there's an important slump over Winter Break, where students were away from campus and unable to tune in. </p>
+
+      <img src="images/graphs/timeseries.png" alt="TV viewership over time" class="figure"/>
+
+      <p>The figure below shows the sparsity of the dataset and the enormous skew towards low volume viewers — note that the y axis is logarithmic.</p>
+
+      <img src="images/graphs/distribution.png" alt="Viewing volume distribution" class="figure"/>
+
+      <p>The histogram also highlights an important property of the dataset: while we have more information about Facebook users, their behavior differs from non-Facebook users. Namely, they are less engaged, likely because of technical limitations: session cookies don't sync across devices and are sometimes erased by the user, leading to users being represented twice under different session IDs.</p>
+      
+      <h2>Exploratory Analysis: What Shows Do Students Watch the Most?</h2>
+      <p>
+      We first looked at how many unique viewers each show had over the dataset and the amount of time watched in total by everyone of each show. As you can see from the table below listing the top 20 shows watched by number of viewers, college students seem to really love their sports, whether it be football or basketball. 
+      </p>
+      
+      
+<TABLE CELLSPACING="0" COLS="3" BORDER="0">
+	<TR>
+		<TD HEIGHT="16" ALIGN="LEFT" VALIGN=BOTTOM><B><U>Show Title</U></B></TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM width="200px"><B><U>Unique viewers</U></B></TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM><B><U>Hours watched by everyone</U></B></TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="16" ALIGN="LEFT" VALIGN=BOTTOM>NFL Football</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="1117" SDNUM="1033;">1117</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="2689" SDNUM="1033;">2689</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="16" ALIGN="LEFT" VALIGN=BOTTOM>NBA Basketball</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="587" SDNUM="1033;">587</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="1121" SDNUM="1033;">1121</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="16" ALIGN="LEFT" VALIGN=BOTTOM>WBZ News</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="454" SDNUM="1033;">454</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="168" SDNUM="1033;">168</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="16" ALIGN="LEFT" VALIGN=BOTTOM>College Basketball</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="445" SDNUM="1033;">445</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="525" SDNUM="1033;">525</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="16" ALIGN="LEFT" VALIGN=BOTTOM>The Big Bang Theory</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="441" SDNUM="1033;">441</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="469" SDNUM="1033;">469</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="17" ALIGN="LEFT" VALIGN=BOTTOM>The Office</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="381" SDNUM="1033;">381</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="277" SDNUM="1033;">277</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="17" ALIGN="LEFT" VALIGN=BOTTOM>The Simpsons</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="373" SDNUM="1033;">373</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="154" SDNUM="1033;">154</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="16" ALIGN="LEFT" VALIGN=BOTTOM>American Idol</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="363" SDNUM="1033;">363</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="217" SDNUM="1033;">217</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="16" ALIGN="LEFT" VALIGN=BOTTOM>How I Met Your Mother</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="344" SDNUM="1033;">344</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="204" SDNUM="1033;">204</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="16" ALIGN="LEFT" VALIGN=BOTTOM>Super Bowl XLVI</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="337" SDNUM="1033;">337</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="452" SDNUM="1033;">452</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="16" ALIGN="LEFT" VALIGN=BOTTOM>Family Guy</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="330" SDNUM="1033;">330</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="291" SDNUM="1033;">291</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="16" ALIGN="LEFT" VALIGN=BOTTOM>Jeopardy!</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="323" SDNUM="1033;">323</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="132" SDNUM="1033;">132</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="16" ALIGN="LEFT" VALIGN=BOTTOM>7 News</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="307" SDNUM="1033;">307</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="105" SDNUM="1033;">105</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="16" ALIGN="LEFT" VALIGN=BOTTOM>The 54th Annual Grammy Awards</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="301" SDNUM="1033;">301</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="498" SDNUM="1033;">498</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="16" ALIGN="LEFT" VALIGN=BOTTOM>30 Rock</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="300" SDNUM="1033;">300</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="250" SDNUM="1033;">250</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="16" ALIGN="LEFT" VALIGN=BOTTOM>Two and a Half Men</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="293" SDNUM="1033;">293</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="150" SDNUM="1033;">150</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="17" ALIGN="LEFT" VALIGN=BOTTOM>FOX NFL Postgame</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="259" SDNUM="1033;">259</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="84" SDNUM="1033;">84</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="16" ALIGN="LEFT" VALIGN=BOTTOM>The Bachelor</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="256" SDNUM="1033;">256</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="338" SDNUM="1033;">338</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="16" ALIGN="LEFT" VALIGN=BOTTOM>60 Minutes</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="252" SDNUM="1033;">252</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="94" SDNUM="1033;">94</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="16" ALIGN="LEFT" VALIGN=BOTTOM>College Football</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="250" SDNUM="1033;">250</TD>
+		<TD ALIGN="CENTER" VALIGN=BOTTOM SDVAL="335" SDNUM="1033;">335</TD>
+	</TR>
+	</td>
+</TABLE>
+<br>
+<p>The above table doesn't tell the whole story. While college students seem to tune in much more to watch sports, we also see news taking the third spot as well, which we wouldn't expect from college students. Are students at Harvard really that world-conscious? (Many at the college would have you think so.) We also notice that special events, such as the Super Bowl and the Grammy Awards are also high on the list, even though they are only on for one day each out of the whole year.</p>
+
+<p>One important aspect which is missing from the table is the length of time each show was on TV. Shows which are on TV for longer periods of time will usually be watched longer than shorter shows. While NBA Basketball or WBZ News is on for hours both during the week and on weekends, new episodes of network sitcoms and series only come out once a week, either 30 minutes or an hour at a time. If we just looked at how long each user watched each show, we would be missing a large chunk of the picture:</p>
+
+<TABLE CELLSPACING="0" COLS="2" BORDER="0">
+	<TR>
+		<TD HEIGHT="16" width="300px"><B><U>Show</U></B></TD>
+		<TD ALIGN="CENTER"><B><U>Hours on TV</U></B></TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="21" ALIGN="LEFT">SportsCenter</FONT></TD>
+		<TD ALIGN="RIGHT" SDVAL="518" SDNUM="1033;">518</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="21" ALIGN="LEFT">College Basketball</FONT></TD>
+		<TD ALIGN="RIGHT" SDVAL="357" SDNUM="1033;">357</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="21" ALIGN="LEFT">WBZ News</FONT></TD>
+		<TD ALIGN="RIGHT" SDVAL="268" SDNUM="1033;">268</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="21" ALIGN="LEFT">Paid Programming</FONT></TD>
+		<TD ALIGN="RIGHT" SDVAL="253" SDNUM="1033;">253</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="21" ALIGN="LEFT">Family Guy</FONT></TD>
+		<TD ALIGN="RIGHT" SDVAL="222" SDNUM="1033;">222</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="21" ALIGN="LEFT">Today</FONT></TD>
+		<TD ALIGN="RIGHT" SDVAL="201" SDNUM="1033;">201</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="21" ALIGN="LEFT">The Big Bang Theory</FONT></TD>
+		<TD ALIGN="RIGHT" SDVAL="182" SDNUM="1033;">182</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="21" ALIGN="LEFT">CNN Newsroom</FONT></TD>
+		<TD ALIGN="RIGHT" SDVAL="178" SDNUM="1033;">178</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="21" ALIGN="LEFT">NBA Basketball</FONT></TD>
+		<TD ALIGN="RIGHT" SDVAL="162" SDNUM="1033;">162</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="40" ALIGN="LEFT">Law &amp; Order: Special Victims Unit     </FONT></TD>
+		<TD ALIGN="RIGHT" SDVAL="158" SDNUM="1033;">158</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="21" ALIGN="LEFT">7 News</FONT></TD>
+		<TD ALIGN="RIGHT" SDVAL="148" SDNUM="1033;">148</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="21" ALIGN="LEFT">Fox 25 News at 10</FONT></TD>
+		<TD ALIGN="RIGHT" SDVAL="143" SDNUM="1033;">143</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="21" ALIGN="LEFT">How I Met Your Mother</FONT></TD>
+		<TD ALIGN="RIGHT" SDVAL="140" SDNUM="1033;">140</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="21" ALIGN="LEFT">Jersey Shore</FONT></TD>
+		<TD ALIGN="RIGHT" SDVAL="140" SDNUM="1033;">140</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="21" ALIGN="LEFT">Two and a Half Men</FONT></TD>
+		<TD ALIGN="RIGHT" SDVAL="138" SDNUM="1033;">138</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="21" ALIGN="LEFT">Chopped</FONT></TD>
+		<TD ALIGN="RIGHT" SDVAL="128" SDNUM="1033;">128</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="21" ALIGN="LEFT">The Office</FONT></TD>
+		<TD ALIGN="RIGHT" SDVAL="128" SDNUM="1033;">128</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="40" ALIGN="LEFT">Kourtney &amp; Kim Take New York</FONT></TD>
+		<TD ALIGN="RIGHT" SDVAL="127" SDNUM="1033;">127</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="21" ALIGN="LEFT">Seinfeld</FONT></TD>
+		<TD ALIGN="RIGHT" SDVAL="124" SDNUM="1033;">124</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="21" ALIGN="LEFT">Friends</FONT></TD>
+		<TD ALIGN="RIGHT" SDVAL="122" SDNUM="1033;">122</TD>
+	</TR>
+</TABLE>
+<br>
+<p>As you can see from this list of top 20 shows on TV, WBZ News is also on for a very long period of time, as well as other news shows, as well as College Basketball. This we will need to take into consideration later when we build a model to start making TV show recommendations.</p>
+<p>Furthermore, another way the data is affected is by what is on TV at any given time. Whether it's primetime on a weekday or 5 in the morning on a weekend matters when it comes to recommendations. Not enough good shows on, and a user might pick a show that they truly dislike because it's the "only thing on." From looking at the data, we can make some conclusions about users who watch Philo:</p>
+<ul>
+<li>They will turn on the TV both to watch shows which they care about as well as to find new shows to watch.</li>
+<li>They will not always know what they want to watch when they turn on the TV.</li>
+<li>They may not always find a show that they would like to watch, given what's on TV at a given time.</li>
+<li>They will sometimes watch shows that they do not particularly like.</li>
+</ul>
+      <h2>Toward a Novel TV Show Recommendation System: The "Stickiness" Factor</h2>
+      <p><em>
+         We leveraged the unique nature of our online TV viewership dataset to develop what we call "stickiness", 
+         a dynamic measure of viewer engagement. To create the metric, we used on the Markov Models in conjunction with the PageRank algorithm.
+         </em>
+      </p>
+      <p>
+         A user watching cable TV, whether through a cable box or an Internet cable TV provider such as Philo, will watch a variety of shows over his or her lifetime with the provider. However, a cable TV is fundamentally different from on-demand TV content providers, such as Netflix, Hulu, or YouTube. Important differences include limited content availability at any given time on cable: content is curated by the provider rather than selected by the user. In addition, cable lacks content rating and robust user and usage tracking. These characteristics make it very challenging to provide relevant content recommendations to cable TV viewers. 
+      </p>
+      <p>
+         Taking into account the nature of content availability on TV, we can measure TV show stickiness by determining which TV shows capture a user's attention the most — what keeps them most engaged. We define 'stickiness' as the proportion of time that a user watches a given TV show relative to the length of the show available at that time. Stickiness helps us understand how likely a user is to watch the show instead of switching to a different one.
+      </p>
+      <p>
+         After multiple iterations (described in more detail on our Github), we came up with the following 
+         <b>Markov Model</b>.
+         We added an edge between show A and show B when a user switched the channel from A to B in the same viewing session, where a "viewing session" is defined as a set of neighboring shows. We created a directed graph by determining show crossing for each user in our data set for the entire three-month period.
+      </p>
+      <p>
+         We then normalized the edge crossings by the length of time the show was on TV in that viewing session. That is, we normalized the edge weights from show A to show B by setting them equal to the stickiness of show B when coming from show A. In other words, the stickiness of B after moving from A equals the transition probability from show A to show B. One can think of it as "the probability of being fully engaged at B given currently at show A." The higher the stickiness of B when coming from A, the higher the probability of staying at show B and watching it to the end. We perform these calculations for every user and show in the dataset to produce an array of edge weights for every edge, where each entry corresponds to a normalized transition a user made between the two shows. We calculate the mean and standard deviation for these arrays at each edge. 
+      </p>
+      <p>
+         We used <b>PageRank</b> as our metric.
+         PageRank is useful here as it roughly corresponds to a user randomly starting from a show and switching the channel until he or she finds a show to watch. This corresponds to walking along edges with preference to higher weighted edges on our model. Accordingly, in the context of our network, higher PageRank score is a good proxy for stickiness.
+      </p>
+      <p>
+         Lastly, we 
+         we bootstrapped the PageRank calculation by randomizing the edge weights based on their means and standard deviations (i.e. adding Gaussian noise) and then calculated the PageRank at each node. We performed 1000 iterations. We then set the mean PageRank over these iterations to each node to get a new, bootstrapped version which accounts for large edge weight uncertainty.
+      </p>
+      <p>
+         The graph below shows the resulting network. Each node's size is determined by its PageRank:
+         the larger the PageRank score, the bigger the node.
+         Node and edge coloring is determined by modularity,
+         which groups shows with similar structural characteritics within the network together.
+         A brief investigation indicated that this coloring is meaningful in
+         that the modularity very closely corresponds to grouping by show type:
+         sports tend to be grouped together, so do comedies, dramas, etc.
+      </p>
+      <img src="images/networks/iteration_3.png" alt="Markov Model of TV Shows" class="figure"/>
+      <h2>
+         Time-Based Stickiness
+      </h2>
+      <p>
+         To determine the stickiness of a show at a certain time and date, 
+         we can filter the network and display only
+         the relevant nodes. The interactive visualization below implements this.
+      </p>
+      <figure>
+         <form id="target" action="POST">
+            <input type="text" name="start" id="start" value="" placeholder="Start">
+            <input type="text" name="end" id="end" value="" placeholder="End">
+            <input type="submit" value="Go">
+         </form>
+         <div class="sigma-parent" id="sigma-tvgraph-parent">
+            <div class="sigma-expand" id="sigma-tvgraph"></div>
+         </div>
+      </figure>
+
+      <h2>Classifying Gender and Genre</h2>
+
+      <p>We undertook two classification sub-projects:  classifying shows into genres based on their description data, and classifying users into gender groups based on their  viewing patterns.  Both of these projects aimed to fill gaps in the data — for many shows, we had only general category data ("Series," "Other," "General," or "Special") instead of genre-specific information.  Likewise, for those users for which we didn't have Facebook IDs, we could not pull gender data from the Facebook API.</p>
+
+      <p>Using the output of the classifier, the stacked bar graph below shows the gender distribution among the most popular shows.</p>
+
+      <img src="images/graphs/shows.png" alt="TV viewership over time" class="figure"/>
+
+      <p>Much of the work for this portion of the project lay in the cleaning, trimming, and reshaping of the data.  In order to get our genre data into a usable format for scikit-learn, we had to concatenate all episode description data, clean out unecessary punctuation, and make choices about what to do in cases of missing data.  In order to prepare the gender data, we created a new data frame with a row for each user and a column for share of time spent viewing each of the shows and networks we chose. Feature selection was also important in both of these lines of work.  For the genre project, we had to select the number of words that "mattered" in our model, and we used univariate chi-squared feature selection to take the top 1% most-influential words.  For the gender data, we selected the shows and movies that had the largest male and female skews in viewership, with exactly 10 shows and 5 networks for each group (numbers selected after taking an intial view of the data).  Choosing which machine-learning algorithm to use for each classifier was relatively easy - we used SVM for the genres and KNN for the gender groups.  However, we felt that both of these sub-projects would have benefitted from larger data sets.  After all the trimming, relabeling, shaping, and careful selection fo model parameters, we were still somewhat underwhelmed with our final results.</p>
+
+    </div>
+
+    <svg width="500" height="200" id="viz"></svg>
+
+    <div class="container-left" style="min-width:500px !important">
+      <h2>Telling a story</h2>
+
+      <p>Putting it all together, let's tell the story of Sunday December 4, 2011. The interactive visualization to the right shows a row for each user watching at 9pm, with viewership blocks color coded by network.</p>
+
+      <p>Users are watching many different shows, let's start making sense of the data by <a href="#" class="action action-shows">grouping by most popular show</a>. Orange — which is NFL Football — comes in first, followed by Desperate Housewives and Family Guy. The trend is clearer if we <a href="#" class="action action-align">align the blocks</a> — essentially creating a bar graph. (<a href="#" class="action action-dealign">undo</a>)</p>
+
+      <p>Let's <a href="#" class="action action-offset">sort by viewing start time</a>. The big uptick at the top of the hour is apparent, with a start time evenly spread out throughout the rest of the hour. Note, however, that NFL Football (orange bars) is congregated in the bottom half and viewers are tuning in more sporadically.</p>
+
+      <p>Using the data generated by the classifier, let's <a href="#" class="action action-gender">group by gender</a>. There are much more men (top group) watching at this time. We can of course perform the same actions on the grouped data: let's <a href="#" class="action action-shows">sort by show</a> and <a href="#" class="action action-align">align the result</a>. As one might expect, NFL Football is very popular among men. Finally, <a href="#" class="action action-ungroup">undo the grouping</a>.</p>
+
+      <p>Let's <a href="#" class="action action-zappers">sort by users who switch channels often</a>. The Good Wife and Desperate Housewives are quite present at the top — users are switching between those shows a lot. Let's <a href="#" class="action action-stickycolor">recolor and sort the blocks</a> as a function of our measure of show stickiness. Hovering over the bottom blocks show that both The Good Wife and Desperate Housewives indeed have low stickiness.<p>
+
+      <p>NFL Football highlights an important aspect of the methodology: stickiness is calculated for all shows aired, not a particular episode (because there isn't enough data) based on the assumption that shows are periodic and are always competing for attention against the same set of shows. NFL breaks that assumption: it is generally very sticky, <em>except</em> when Family Guy is also on, as is the case in this time window. Therefore, our measure greatly overestimates its stickiness, but it'd be easy to remove this assumption with more data.</p>
+
+      <p>Let's look at a different time period: <a href="#" class="action action-loadgrammy">February 12, 2012</a>. That period was far more busy — the bars are much thinner — and is dominated by the 54th Annual Grammy Awards (blue bars). After <a href="#" class="action action-viewership">sorting by viewership</a> and <a href="#" class="action action-align">aligning the result</a>, it's clear there's a linear dropout of Grammy viewers, hinting at low stickiness.</p>
+
+      <p>As before, let's <a href="#" class="action action-stickycolor">recolor and sort the blocks</a>. Indeed, the Grammys are shown in light green as very unsticky.</p>
+    </div>
+
+    <div class="container">
+    <h2>Conclusion</h2>
+
+      <p>Our work provides an important contribution for content recommendation systems by proposing a measure that infers user preferences from the data itself, rather than requiring explicit input from user (eg. in the form of a star rating). As proposed here, stickiness could be used as the metric to be optimized by a standard recommendation system and can be used as a proxy for global user preference in the context of dynamically changing set of options.</p>
+
+      <p>We likewise took a small step toward personification by demonstrating that we can infer user and data characteristics via machine learning methods. It is our hope that this study will prove useful to developing user-specific recommender for dynamic content, even beyond the one found on cable TV.</p>
+
+      <footer role="contentinfo">
+        <small>© 2013</small>
+        <img src="images/shield.png" alt="SEAS shield" />
+      </footer>
+    </div>
+
+    <script src="//d3js.org/d3.v3.min.js"></script>
+    <script src="js/d3tip.js"></script>
+
+    <!-- lots of crap only needed for the graph visualization -->
+    <script src="js/sigma.min.js"></script>
+    <script src="js/sigma.parseGexf.js"></script>
+    <script src="//code.jquery.com/jquery-2.0.3.min.js"></script>
+    <script src="//code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+    <script src="js/jquery-ui-timepicker-addon.js"></script>
+    <script src="js/jquery-ui-sliderAccess.js"></script>
+
+    <script src="js/main.js"></script>
+  </body>
+</html>
+

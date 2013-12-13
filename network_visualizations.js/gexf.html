@@ -1,0 +1,69 @@
+<!doctype html>
+<html class="no-js" lang="en">
+   <head>
+      <script src="js/sigma.min.js"></script>
+   </head>
+   <body>
+      <br />
+      <br /> 
+      <div class="container">
+         <div class="row">
+            <div class="span12 sigma-parent" id="sigma-example-parent">
+               <div class="sigma-expand" id="sigma-example"></div>
+            </div>
+         </div>
+         <br />
+         <br />
+         <script src="js/sigma.parseGexf.js"></script><script type="text/javascript">function init() {
+            // Instanciate sigma.js and customize rendering :
+            var sigInst = sigma.init(document.getElementById('sigma-example')).drawingProperties({
+              defaultLabelColor: '#fff',
+              defaultLabelSize: 14,
+              defaultLabelBGColor: '#fff',
+              defaultLabelHoverColor: '#000',
+              labelThreshold: 6,
+              defaultEdgeType: 'curve'
+            }).graphProperties({
+              minNodeSize: 0.5,
+              maxNodeSize: 5,
+              minEdgeSize: 1,
+              maxEdgeSize: 1
+            }).mouseProperties({
+              maxRatio: 32
+            });
+            
+            // Parse a GEXF encoded file to fill the graph
+            // (requires "sigma.parseGexf.js" to be included)
+            sigInst.parseGexf('finished_network.gexf');
+            
+            // Draw the graph :
+            sigInst.draw();
+            }
+            
+            if (document.addEventListener) {
+            document.addEventListener("DOMContentLoaded", init, false);
+            } else {
+            window.onload = init;
+            }
+         </script>
+         <style type="text/css">
+            /* sigma.js context : */
+            .sigma-parent {
+            position: relative;
+            border-radius: 4px;
+            -moz-border-radius: 4px;
+            -webkit-border-radius: 4px;
+            background: #222;
+            height: 500px;
+            }
+            .sigma-expand {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            }
+         </style>
+      </div>
+   </body>
+</html>

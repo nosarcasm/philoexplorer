@@ -1,0 +1,173 @@
+@import url(http://fonts.googleapis.com/css?family=Lato:300,400,700,900,300italic,400italic);
+
+body {
+  margin: 0;
+  font-family: 'Lato', sans-serif;
+  background: url('../images/cream_dust.png');
+}
+
+h1 {
+  font-size: 54px;
+  font-size: 3rem;
+  margin-top: 1em;
+  margin-bottom: 0.25em;
+}
+
+h2 {
+  font-size: 36px;
+  font-size: 2rem;
+}
+
+p {
+  text-align: justify;
+}
+
+figure {
+  width: 100%;
+  margin: 10px 0 40px;
+}
+
+/*h1, h2, h3, h4, h5, h6, p {*/
+  /*margin-left: 15px;*/
+  /*margin-right: 15px;*/
+/*}*/
+
+.container {
+  width: 850px;
+  margin: 0 auto;
+}
+
+.container-left {
+  margin: 40px 700px 40px 150px;
+}
+
+.byline {
+  font-size: 22px;
+  font-size: 1.222rem;
+  font-weight: 300;
+  margin-bottom: 2em;
+}
+
+.figure {
+  display: block;
+  width: 100%;
+  margin: auto auto 1.5em;
+}
+
+#shield {
+  float: right;
+  width: 40px;
+  /*margin-right: -20px;*/
+}
+
+#viz {
+  display: block;
+  float: right;
+  margin-right: 150px;
+  margin-top: 40px;
+  /*margin: 40px auto 20px;*/
+}
+
+.action {
+  color: #46f;
+  border-bottom: 1px dashed #46f;
+  text-decoration: none;
+}
+
+#sort {
+  text-align: center;
+}
+
+.d3-tip {
+  line-height: 1;
+  font-weight: bold;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+  font-size: 14px;
+  font-size: 0.778rem;
+}
+
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+
+#target > input {
+  font-size: 16px;
+}
+
+/*
+ * Sigma.js graph
+ */
+.sigma-parent {
+  position: relative;
+  /*background: #222;*/
+  height: 40rem;
+  top: 0;
+}
+.sigma-expand {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: -0;
+  left: 0;
+}
+
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+
+/*
+ * SVG
+ */
+
+text {
+  font-family: sans-serif;
+  font-size: 11px;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: black;
+  shape-rendering: crispEdges;
+}
+
+.grid .domain {
+  display: none;
+}
+.grid path,
+.grid line {
+  fill: none;
+  stroke: black;
+  opacity: 0.2;
+  shape-rendering: crispEdges;
+}
+
+.hidden {
+  display: none;
+}
+
+
+footer {
+  text-align: center;
+  margin-bottom: 40px;
+}
+footer img {
+  display: block;
+  margin: 4px auto 0;
+  width: 40px;
+}
