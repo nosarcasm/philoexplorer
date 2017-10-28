@@ -19,5 +19,5 @@ pip install -r requirements.txt
 
 ### Presentation
 
-The presentation is reachable at [http://indynamics.org/philoexplorer](http://indynamics.org/philoexplorer).
+The presentation is reachable at [http://static.davidchouinard.com/philo/](http://static.davidchouinard.com/philo/).
 
