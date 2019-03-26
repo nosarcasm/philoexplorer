@@ -1,7 +1,7 @@
 Philo TV Viewer Explorer
 ============
 
-Final project for CS109 explorer TV flow patterns.
+Final project for CS109 explorer TV flow patterns. Data from Philo (nee Tivli) Jan-Feb 2012. 
 
 ### Process book
 
